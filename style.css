@@ -11,6 +11,9 @@ html {
 }
 /* Der durch die Standardeinstellungen vorgesehene Seitenabstand 
 wird außer Kraft gesetzt*/
+
+
+
 body {
   padding: 0;
   margin: 0;

@@ -22,6 +22,10 @@ ul, li {
   list-style: none;
 }
 
+
+
+
+
 /* Gilt für ein Element mit einer bestimmten ID. Hier eine div-Box. */
 #kasten {
 	border: 1px solid red;

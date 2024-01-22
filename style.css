@@ -1,214 +1,205 @@
 @charset "utf-8";
 html {
-  /* Schriftart wird festgelegt*/
-  font-family: verdana, arial, sans-serif;
-  /* Hintergrundbild wird festgelegt*/
-  background: url("medien/background.jpg") no-repeat center center fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
+    /* Schriftart wird festgelegt*/
+    font-family: verdana, arial, sans-serif;
+    /* Hintergrundbild wird festgelegt*/
+    background: url("medien/background.jpg") no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
 }
 /* Der durch die Standardeinstellungen vorgesehene Seitenabstand 
 wird außer Kraft gesetzt*/
 
-
-
 body {
-  padding: 0;
-  margin: 0;
+    padding: 0;
+    margin: 0;
 }
-ul, li {
-  list-style: none;
+ul,
+li {
+    list-style: none;
 }
-
-
-
-
 
 /* Gilt für ein Element mit einer bestimmten ID. Hier eine div-Box. */
 #kasten {
-	border: 1px solid red;
-	background-color:#cccccc;
-	padding: 20px;
-	margin: 30px;
+    border: 1px solid red;
+    background-color: #cccccc;
+    padding: 20px;
+    margin: 30px;
 }
 
 /* Mit Komma getrennte Liste. Die CSS-Angaben gelten für alle genannten Elemente. */
-#eins, #zwei, #info {
-	border: 1px dashed black;
-	background-color:#666666;
-	color: white;
-	padding: 5px;
-	margin: 5px;
+#eins,
+#zwei,
+#info {
+    border: 1px dashed black;
+    background-color: #666666;
+    color: white;
+    padding: 5px;
+    margin: 5px;
 }
 
 /* Festlegen, wie die Klasse container sich verhalten soll, 
 wenn sich die Elemente im container übereinander schieben würden*/
 .fa {
-  padding: 20px;
-  font-size: 30px;
-  width: 50px;
-  text-align: center;
-  text-decoration: none;
+    padding: 20px;
+    font-size: 30px;
+    width: 50px;
+    text-align: center;
+    text-decoration: none;
 }
 /* Add a hover effect if you want */
 .fa:hover {
-  opacity: 0.7;
+    opacity: 0.7;
 }
 /* Spezielle Farbe setzen */
 /* Instagram */
 .fa-instagram {
-  background: #463EFF;
-  color: white;
+    background: #463eff;
+    color: white;
 }
 /* YouTube */
 .fa-youtube {
-  background: #B80000;
-  color: white;
+    background: #b80000;
+    color: white;
 }
 .container {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  flex-flow: wrap;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    flex-flow: wrap;
 }
 /* Dimensionen der Klasse box festgelegt*/
 .box {
-  width: 40%;
-  height: auto;
-  margin: 10px;
-  float: left;
-}
-/* Dimensionen der Klasse desktopWerbung festgelegt*/
-.desktopWerbung {
-  width: 40%;
-  height: auto;
-  margin: 10px;
-  float: left;
-}
-/* Dimensionen der Klasse mobileWerbung festgelegt*/
-.mobileWerbung {
-  width: 40%;
-  height: auto;
-  margin: 10px;
-  float: left;
+    width: 40%;
+    height: auto;
+    margin: 10px;
+    float: left;
 }
 /* Dimensionen der Klasse imagefilm festgelegt*/
 .imagefilm {
-  width: 40%;
-  height: auto;
-  margin: 10px;
-  float: left;
+    width: 40%;
+    height: auto;
+    margin: 10px;
+    float: left;
 }
 /* Festlegen, wie die Druckansicht aussieht*/
 @media print {
-  /*Größe der Klasse box soll verändert werden*/
-  .box {
-    width: 100%;
-    height: auto;
-    margin: 0;
-  }
-  /* Soll nicht dargestellt werden*/
-  #nichtdrucken, #navigation, #fusszeile, .ui-widget, .imagefilm, .desktopWerbung, .mobileWerbung {
-    display: none;
-  }
-  /* Größe vom Bild soll verändert werden*/
-  #deutschland {
-    width: 50%;
-    height: auto;
-  }
+    /*Größe der Klasse box soll verändert werden*/
+    .box {
+        width: 100%;
+        height: auto;
+        margin: 0;
+    }
+    /* Soll nicht dargestellt werden*/
+    #nichtdrucken,
+    #navigation,
+    #fusszeile,
+    .ui-widget,
+    .imagefilm,
+    .desktopWerbung,
+    .mobileWerbung {
+        display: none;
+    }
+    /* Größe vom Bild soll verändert werden*/
+    #deutschland {
+        width: 50%;
+        height: auto;
+    }
 }
 /* Verändern der Anordnung von den Seitenelementen 
 auf einer mobilen Ansicht*/
 @media screen and (max-width: 550px) {
-  aside .mobile {
-    display: inline-block;
-  }
-  aside .desktop {
-    display: none;
-  }
-  .desktopWerbung {
-    display: none;
-  }
+    aside .mobile {
+        display: inline-block;
+    }
+    aside .desktop {
+        display: none;
+    }
+    .desktopWerbung {
+        display: none;
+    }
 }
 /* Festlegen, ab welcher Displaybreite die Seitenelemente 
 nicht mehr nebeneinander dargestellt werden sollen*/
 @media screen and (max-width: 950px) {
-  .box {
-    width: 90%;
-    height: auto;
-  }
-  #grundinformationen, #deutschland {
-    width: 90%;
-    height: auto;
-  }
+    .box {
+        width: 90%;
+        height: auto;
+    }
+    #grundinformationen,
+    #deutschland {
+        width: 90%;
+        height: auto;
+    }
 }
 /* Dimensionen des Elements für die Suchleiste wird festgelegt*/
 #autocomplete {
-  z-index: 100;
-  margin-bottom: 5px;
+    z-index: 100;
+    margin-bottom: 5px;
 }
 /* Dimensionen der Karte werden festgelegt*/
 #map {
-  width: 95%;
-  height: 750px;
-  border: 1px solid black;
-  z-index: 0;
+    width: 95%;
+    height: 750px;
+    border: 1px solid black;
+    z-index: 0;
 }
 /* Größe des Wappens wird festgelegt*/
 #wappen {
-  height: 75px;
-  float: right;
+    height: 75px;
+    float: right;
 }
 /* Farbe und der Höhe des Kopteils wird festgelegt*/
 #kopf {
-  background-color: green;
-  height: 75px;
+    background-color: red;
+    height: 75px;
+    text-align: center;
 }
 /* Festlegen der Schriftdarstellung*/
 #kopf a {
-  color: white;
-  text-decoration: none;
-  margin-left: 25px;
-  margin-top: 25px;
+    color: white;
+    text-decoration: none;
+    margin-left: 25px;
+    margin-top: 25px;
 }
 /* Farbe und Höhe der Navigationsleiste wird festgelegt*/
 #navigation {
-  background-color: red;
-  height: auto;
+    background-color: white;
+    height: auto;
 }
 /* Art der Liste der Navigationspunkte wird festgelegt*/
 #navigation li {
-  margin: 5px;
-  display: inline-block;
+    margin: 5px;
+    display: inline-block;
 }
 /* Festlegunug der Schriftdarstellung*/
 #navigation a {
-  width: auto;
-  text-decoration: none;
-  text-align: center;
-  color: white;
+    width: auto;
+    text-decoration: none;
+    text-align: center;
+    color: black;
 }
 /* Größe des Bildes wird festgelegt*/
 #deutschland {
-  width: 450;
-  height: auto;
+    width: 450;
+    height: auto;
 }
 /* Abstand zwischen dem linken Fensterrand und Inhalt wird auf 10 px gesetzt*/
 #inhalt {
-  margin-left: 10px;
+    margin-left: 10px;
 }
 /* Hintergrundfarbe der Fußleiste wird dargestellt*/
 #fusszeile {
-  background-color: black;
+    background-color: black;
 }
 /* Abstand zwischen den Listenpunkten wird auf 5px gesetzt*/
 #fusszeile li {
-  margin: 5px;
-  display: inline-block;
+    margin: 5px;
+    display: inline-block;
 }
 /* Schriftfarbe wird auf weiß gesetzt*/
 #fusszeile a {
-  color: white;
+    color: white;
 }

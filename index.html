@@ -51,7 +51,8 @@
                 // Initialisierung des JQuery autocomplete Widget mit einem leeren Element (Wird erst geladen wenn die JSON Datei eingelesen wurde)
                 $("#autocomplete").autocomplete();
                 // Initialisierung der Karte und der zwei Basemaps
-                var map = L.map("map").setView([51.433237, 7.661594], 8);
+                // var map = L.map("map").setView([51.433237, 7.661594], 8);
+                var map = L.map("map").setView([53.141092, 8.215208], 12);
                 var osm = new L.tileLayer(
                     "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
                     {

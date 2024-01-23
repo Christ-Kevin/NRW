@@ -61,7 +61,9 @@
             <script>
                 // Definieren der JSON-Datei und zweier Hilfsarrays
                 var urlNRW = "gemeinden_simplify200.geojson";
-                var gebaeude_shapes = "Buildings2.geojson";
+                var gebaeude_shapes = "Buildings.geojson";
+                // gebaeude_shapes.addTo(map);
+                var OePNV = "OePNV.geojson";
                 var arr = [];
                 var arr1 = [];
                 // Initialisierung des JQuery autocomplete Widget mit einem leeren Element (Wird erst geladen wenn die JSON Datei eingelesen wurde)
@@ -72,8 +74,7 @@
                 var osm = new L.tileLayer(
                     "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
                     {
-                        attribution:
-                            '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+                        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                     }
                 );
                 // var OpenStreetMap_BlackAndWhite = new L.tileLayer(
@@ -106,41 +107,37 @@
                 };
                 function forEachFeature(feature, layer) {
                     // Der Name des jeweiligen Polygons im Datensatz wird für die Suche getagged
-                    layer._leaflet_id = feature.properties.GEN;
+                    layer._leaflet_id = feature.properties.Abk;
                     var popupContent =
-                        "<p><b>Kreis: </b>" +
-                        feature.properties.GEN +
-                        "<br>Größe in qkm: " +
-                        feature.properties.destatis.area +
-                        "<br>Einwohnerzahl: " +
-                        feature.properties.destatis.population +
-                        "<br>Einwohner pro qkm: " +
-                        feature.properties.destatis.population_density +
+                        "<p><b>Abkürzung: </b>" +
+                        feature.properties.Abk +
+                        "<br>Vollständiger Name: " +
+                        feature.properties.vName +
                         "</p>";
                     layer.bindPopup(popupContent);
                     layer.on("click", function (e) {
-                        stateLayer.setStyle(style); //setzt die Farbe des Layers
+                        stateLayer1.setStyle(style); //setzt die Farbe des Layers
                         layer.setStyle(highlight); //setzt die Farbe wenn ausgewählt
                     });
                 }
                 // Mit JQuery wird die GeoJSON-Datei in den Layer geladen, bevor dieser zur Karte hinzugefügt wird.
                 // Wenn das Array durchgelaufen ist, wird es zur addDataToAutocomplete Funktion übergeben.
-                var stateLayer = L.geoJson(null, {
+                var stateLayer1 = L.geoJson(null, {
                     onEachFeature: forEachFeature,
                     style: style,
                 });
-                $.getJSON(urlNRW, function (data) {
-                    stateLayer.addData(data);
+                $.getJSON(gebaeude_shapes, function (data) {
+                    stateLayer1.addData(data);
                     for (i = 0; i < data.features.length; i++) {
                         // Lädt die Gemeindenamen ins Array für die Suche.
                         arr1.push({
-                            label: data.features[i].properties.GEN,
+                            label: data.features[i].properties.Abk,
                             value: "",
                         });
                     }
                     addDataToAutocomplete(arr1); // Gibt das Array für das Sortieren weiter und zum laden der Suchkontrolle.
                 });
-                stateLayer.addTo(map);
+                stateLayer1.addTo(map);
 
                 // Autocomplete-Suche
                 function addDataToAutocomplete(arr) {
@@ -159,7 +156,7 @@
                     $("#autocomplete").on(
                         "autocompleteselect",
                         function (event, ui) {
-                            polySelect(ui.item.label); // Nimmt sich den ausgewählten Gemeindenamen.
+                            polySelect(ui.item.label); // Nimmt sich die ausgewählte Abkürzung.
                             ui.item.value = "";
                         }
                     );
@@ -174,16 +171,16 @@
                 // Layer-control.
                 var baseMaps = {
                     "Open Street Map": osm,
-                    "OSM B&W": OpenStreetMap_BlackAndWhite,
+                    // "OSM B&W": OpenStreetMap_BlackAndWhite,
                 };
                 var overlayMaps = {
-                    NRW: stateLayer,
+                    Buildings: stateLayer1,
                 };
                 // Hinzufügen des Layer-control's
                 L.control.layers(baseMaps, overlayMaps).addTo(map);
             </script>
-            <a id="download" href="gemeinden_simplify200.geojson" download
-                >Download GeoJson-Datei für NRW</a
+            <a id="download" href="Buildings.geojson" download
+                >Download GeoJson-Datei für die Gebäude</a
             >
         </main>
         <footer id="fusszeile">

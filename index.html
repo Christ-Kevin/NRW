@@ -8,9 +8,20 @@
         <link href="style.css" rel="stylesheet" type="text/css" />
         <link
             rel="stylesheet"
-            href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+            crossorigin=""
         />
-        <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
+        <!-- <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+        /> -->
+        <script
+            src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""
+        ></script>
+        <!-- <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script> -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
         <link
             rel="stylesheet"
@@ -26,7 +37,11 @@
 
     <body>
         <aside id="wappen">
-            <img src="medien/Logo_JadeHochschule_7.jpg" style="height: 100%;" alt="Jade HS Wappen" />
+            <img
+                src="medien/Logo_JadeHochschule_7.jpg"
+                style="height: 100%"
+                alt="Jade HS Wappen"
+            />
         </aside>
         <header id="kopf">
             <h1><a href="index.html">ÖPNV in Oldenburg</a></h1>
@@ -46,6 +61,7 @@
             <script>
                 // Definieren der JSON-Datei und zweier Hilfsarrays
                 var urlNRW = "gemeinden_simplify200.geojson";
+                var gebaeude_shapes = "Buildings2.geojson";
                 var arr = [];
                 var arr1 = [];
                 // Initialisierung des JQuery autocomplete Widget mit einem leeren Element (Wird erst geladen wenn die JSON Datei eingelesen wurde)
@@ -60,14 +76,14 @@
                             '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
                     }
                 );
-                var OpenStreetMap_BlackAndWhite = new L.tileLayer(
-                    "http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png",
-                    {
-                        maxZoom: 18,
-                        attribution:
-                            '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                    }
-                );
+                // var OpenStreetMap_BlackAndWhite = new L.tileLayer(
+                //     "http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png",
+                //     {
+                //         maxZoom: 18,
+                //         attribution:
+                //             '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                //     }
+                // );
                 osm.addTo(map);
 
                 // Eine Style Funktion die die Farbe der Polygone der JSON Datei füllt

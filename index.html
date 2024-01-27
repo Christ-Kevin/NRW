@@ -55,9 +55,6 @@
                 />
             </section>
             <section id="map"></section>
-
-            // ------------------------------------------------------------------------------------------------------
-
             <script>
                 // Definieren der JSON-Dateien und zweier Hilfsarrays
                 // var urlNRW = "gemeinden_simplify200.geojson";
@@ -130,23 +127,6 @@
                 );
                 osm.addTo(map);
 
-                // ------------------------------------------------------------------------------------------------------
-                
-                function forEachFeature(feature, layer) {
-                    // Der Name des jeweiligen Polygons im Datensatz wird für die Suche getagged
-                    layer._leaflet_id = feature.properties.Abk;
-                    var popupContent =
-                        "<p><b>Abkürzung: </b>" +
-                        feature.properties.Abk +
-                        "<br>Vollständiger Name: " +
-                        feature.properties.vName +
-                        "</p>";
-                    layer.bindPopup(popupContent);
-                    layer.on("click", function (e) {
-                        stateLayer1.setStyle(style); //setzt die Farbe des Layers
-                        layer.setStyle(highlight); //setzt die Farbe wenn ausgewählt
-                    });
-                }
                 // Eine Style Funktion die die Farbe der Polygone der JSON Datei füllt
                 function style(feature) {
                     // Grundfarbe der Polygone.
@@ -165,9 +145,21 @@
                     weight: 2,
                     opacity: 1,
                 };
-
-                // ------------------------------------------------------------------------------------------------------
-
+                function forEachFeature(feature, layer) {
+                    // Der Name des jeweiligen Polygons im Datensatz wird für die Suche getagged
+                    layer._leaflet_id = feature.properties.Abk;
+                    var popupContent =
+                        "<p><b>Abkürzung: </b>" +
+                        feature.properties.Abk +
+                        "<br>Vollständiger Name: " +
+                        feature.properties.vName +
+                        "</p>";
+                    layer.bindPopup(popupContent);
+                    layer.on("click", function (e) {
+                        stateLayer1.setStyle(style); //setzt die Farbe des Layers
+                        layer.setStyle(highlight); //setzt die Farbe wenn ausgewählt
+                    });
+                }
                 // Mit JQuery wird die GeoJSON-Datei in den Layer geladen, bevor dieser zur Karte hinzugefügt wird.
                 // Wenn das Array durchgelaufen ist, wird es zur addDataToAutocomplete Funktion übergeben.
                 var stateLayer1 = L.geoJson(null, {
@@ -186,8 +178,6 @@
                     addDataToAutocomplete(arr1); // Gibt das Array für das Sortieren weiter und zum laden der Suchkontrolle.
                 });
                 stateLayer1.addTo(map);
-
-                // ------------------------------------------------------------------------------------------------------
 
                 // Autocomplete-Suche
                 function addDataToAutocomplete(arr) {
@@ -218,9 +208,6 @@
                     var layer = map._layers[a];
                     map.fitBounds(layer.getBounds()); // Zoomt auf das ausgewählte Polygon.
                 }
-
-                // ------------------------------------------------------------------------------------------------------
-
                 // Layer-control.
                 var baseMaps = {
                     "Open Street Map": osm,

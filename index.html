@@ -147,8 +147,12 @@
                     opacity: 1,
                 };
                 function forEachFeature(feature, layer) {
-                    // Der Name des jeweiligen Polygons im Datensatz wird für die Suche getagged
+                    console.log(
+                        "forEachFeature ausgeführt für Layer mit ID:",
+                        layer._leaflet_id
+                    );
 
+                    // Der Name des jeweiligen Polygons im Datensatz wird für die Suche getagged
                     layer._leaflet_id =
                         feature.properties.Abk + "_" + feature.properties.vName;
                     var popupContent =
@@ -159,28 +163,10 @@
                         "</p>";
                     layer.bindPopup(popupContent);
                     layer.on("click", function (e) {
-                        stateLayer1.setStyle(style); //setzt die Farbe des Layers
-                        layer.setStyle(highlight); //setzt die Farbe wenn ausgewählt
+                        console.log("Layer geklickt:", layer);
+                        layer.setStyle(highlight);
+                        stateLayer1.setStyle(style);
                     });
-                    // try {
-                    //     layer._leaflet_id = feature.properties.vName;
-                    //     var popupContent =
-                    //         "<p><b>Abkürzung: </b>" +
-                    //         feature.properties.Abk +
-                    //         "<br>Vollständiger Name: " +
-                    //         feature.properties.vName +
-                    //         "</p>";
-                    //     layer.bindPopup(popupContent);
-                    //     layer.on("click", function (e) {
-                    //         stateLayer1.setStyle(style); //setzt die Farbe des Layers
-                    //         layer.setStyle(highlight); //setzt die Farbe wenn ausgewählt
-                    //     });
-                    // } catch (error2) {
-                    //     console.error(
-                    //         "Sucht nicht nach dem vollständigen Namen:",
-                    //         error2
-                    //     );
-                    // }
                 }
                 // Mit JQuery wird die GeoJSON-Datei in den Layer geladen, bevor dieser zur Karte hinzugefügt wird.
                 // Wenn das Array durchgelaufen ist, wird es zur addDataToAutocomplete Funktion übergeben.
@@ -195,15 +181,15 @@
                         arrAkb.push({
                             label: data.features[i].properties.Abk,
                             value: "",
+                            attribute: "Abk", // Setzen Sie hier den Attributnamen
                         });
                         // Lädt die vollständigen Namen ins Array für die Suche.
                         arrVName.push({
                             label: data.features[i].properties.vName,
                             value: "",
+                            attribute: "vName", // Setzen Sie hier den Attributnamen
                         });
                     }
-                    // addDataToAutocomplete(arrAkb); // Gibt das Array für das Sortieren weiter und zum laden der Suchkontrolle.
-                    // // addDataToAutocomplete(arrVName);
                     // Kombiniere beide Arrays zu einem einzigen Array
                     var combinedArray = arrAkb.concat(arrVName);
 
@@ -212,6 +198,19 @@
                 });
                 stateLayer1.addTo(map);
 
+                // Fügt zwei zusätzliche Methoden zu stateLayer1 hinzu, um Layer nach Abk und vName zu suchen
+                L.GeoJSON.include({
+                    getLayerByAbk: function (Abk) {
+                        return this.getLayers().find(
+                            (layer) => layer.feature.properties.Abk === Abk
+                        );
+                    },
+                    getLayerByVName: function (vName) {
+                        return this.getLayers().find(
+                            (layer) => layer.feature.properties.vName === vName
+                        );
+                    },
+                });
                 // Autocomplete-Suche
                 function addDataToAutocomplete(arr) {
                     arr.sort(function (a, b) {
@@ -229,17 +228,40 @@
                     $("#autocomplete").on(
                         "autocompleteselect",
                         function (event, ui) {
-                            polySelect(ui.item.label); // Nimmt sich die ausgewählte Abkürzung.
+                            console.log("Autocomplete ausgewählt:", ui.item);
+                            polySelect(ui.item.label, ui.item.attribute);
                             ui.item.value = "";
                         }
                     );
                 } // Autocomplete-Suche wird beendet.
 
-                // Click-Event und Zoom auf das Polygon. Leaflet benutzt eine interne ID um das Polygon auszuwählen.
-                function polySelect(selectedLabel) {
-                    map._layers[selectedLabel].fire("click"); // 'klickt' auf den Suchbegriff.
-                    var layer = map._layers[selectedLabel];
-                    map.fitBounds(layer.getBounds()); // Zoomt auf das ausgewählte Polygon.
+                // // Click-Event und Zoom auf das Polygon. Leaflet benutzt eine interne ID um das Polygon auszuwählen.
+                function polySelect(selectedLabel, searchBy) {
+                    console.log(
+                        "polySelect ausgeführt mit:",
+                        selectedLabel,
+                        searchBy
+                    );
+
+                    var layer;
+                    if (searchBy === "Abk") {
+                        // Suchen nach Abkürzung
+                        layer = stateLayer1.getLayerByAbk(selectedLabel);
+                    } else if (searchBy === "vName") {
+                        // Suchen nach Vollständigem Namen
+                        layer = stateLayer1.getLayerByVName(selectedLabel);
+                    }
+
+                    if (layer) {
+                        console.log("Layer gefunden:", layer);
+                        stateLayer1.setStyle(style); // Stellt den ursprünglichen Stil für alle Polygone wieder her
+                        map.fitBounds(layer.getBounds()); // Zoomt auf das ausgewählte Polygon.
+                        layer.setStyle(highlight); // Setzt die Farbe des Layers
+                        layer.openPopup(); // Öffnet das Popup für den ausgewählten Layer.
+                        
+                    } else {
+                        console.log("Layer nicht gefunden");
+                    }
                 }
                 // Layer-control.
                 var baseMaps = {

@@ -66,7 +66,7 @@
                 var arrVName = [];
                 var arrStopName = [];
                 // Erstellen Sie eine LayerGroup für den GeoJSON-Layer
-                var linesLayerGroup1 = L.layerGroup();
+                var linesLayerGroup = L.layerGroup();
                 fetch(lines_OePNV)
                     .then((response) => response.json())
                     .then((data) => {
@@ -79,8 +79,8 @@
                                     opacity: 1,
                                 };
                             },
-                        }).addTo(linesLayerGroup1);
-                        linesLayerGroup1.addTo(map);
+                        }).addTo(linesLayerGroup);
+                        linesLayerGroup.addTo(map);
                     })
                     .catch((error) =>
                         console.error("Error fetching GeoJSON:", error)
@@ -94,7 +94,7 @@
                     }
                     return color;
                 }
-                var linesLayerGroup2 = L.layerGroup();
+                var stopLayerGroup = L.layerGroup();
                 fetch(stops_OePNV)
                     .then((response) => response.json())
                     .then((data) => {
@@ -110,14 +110,12 @@
                                     fillOpacity: 0.8,
                                 });
                             },
-                        }).addTo(linesLayerGroup2);
-                        linesLayerGroup2.addTo(map);
+                        }).addTo(stopLayerGroup);
+                        stopLayerGroup.addTo(map);
                     })
                     .catch((error) =>
                         console.error("Error fetching GeoJSON:", error)
                     );
-                
-
 
                 // Initialisierung des JQuery autocomplete Widget mit einem leeren Element (Wird erst geladen wenn die JSON Datei eingelesen wurde)
                 $("#autocomplete").autocomplete();
@@ -169,17 +167,17 @@
                     layer.on("click", function (e) {
                         console.log("Layer geklickt:", layer);
                         layer.setStyle(highlight);
-                        stateLayer1.setStyle(style);
+                        buildingLayerGroup.setStyle(style);
                     });
                 }
                 // Mit JQuery wird die GeoJSON-Datei in den Layer geladen, bevor dieser zur Karte hinzugefügt wird.
                 // Wenn das Array durchgelaufen ist, wird es zur addDataToAutocomplete Funktion übergeben.
-                var stateLayer1 = L.geoJson(null, {
+                var buildingLayerGroup = L.geoJson(null, {
                     onEachFeature: forEachFeature,
                     style: style,
                 });
                 $.getJSON(gebaeude_shapes, function (data) {
-                    stateLayer1.addData(data);
+                    buildingLayerGroup.addData(data);
                     for (i = 0; i < data.features.length; i++) {
                         // Lädt die Abkürzungen ins Array für die Suche.
                         arrAkb.push({
@@ -200,9 +198,9 @@
                     // Gib das kombinierte Array an die Funktion für das Sortieren und das Laden der Suchkontrolle weiter.
                     addDataToAutocomplete(combinedArray);
                 });
-                stateLayer1.addTo(map);
+                buildingLayerGroup.addTo(map);
 
-                // Fügt zwei zusätzliche Methoden zu stateLayer1 hinzu, um Layer nach Abk und vName zu suchen
+                // Fügt zwei zusätzliche Methoden zu buildingLayerGroup hinzu, um Layer nach Abk und vName zu suchen
                 L.GeoJSON.include({
                     getLayerByAbk: function (Abk) {
                         return this.getLayers().find(
@@ -250,17 +248,17 @@
                     var layer;
                     if (searchBy === "Abk") {
                         // Suchen nach Abkürzung
-                        layer = stateLayer1.getLayerByAbk(selectedLabel);
+                        layer = buildingLayerGroup.getLayerByAbk(selectedLabel);
                     } else if (searchBy === "vName") {
                         // Suchen nach Vollständigem Namen
-                        layer = stateLayer1.getLayerByVName(selectedLabel);
+                        layer = buildingLayerGroup.getLayerByVName(selectedLabel);
                     } else if (searchBy === "stop_name") {
                         // Suchen nach Vollständigem Namen
                         layer = stateLayer2.getLayerByVName(selectedLabel);
                     }
                     if (layer) {
                         console.log("Layer gefunden:", layer);
-                        stateLayer1.setStyle(style); // Stellt den ursprünglichen Stil für alle Polygone wieder her
+                        buildingLayerGroup.setStyle(style); // Stellt den ursprünglichen Stil für alle Polygone wieder her
                         map.fitBounds(layer.getBounds()); // Zoomt auf das ausgewählte Polygon.
                         layer.setStyle(highlight); // Setzt die Farbe des Layers
                         layer.openPopup(); // Öffnet das Popup für den ausgewählten Layer.
@@ -274,9 +272,9 @@
                     "Open Street Map": osm,
                 };
                 var overlayMaps = {
-                    Buildings: stateLayer1,
-                    Lines_OePNV: linesLayerGroup1,
-                    Stops_OePNV: linesLayerGroup2,
+                    Buildings: buildingLayerGroup,
+                    Lines_OePNV: linesLayerGroup,
+                    Stops_OePNV: stopLayerGroup,
                 };
                 // Hinzufügen des Layer-control's
                 L.control.layers(baseMaps, overlayMaps).addTo(map);

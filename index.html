@@ -62,7 +62,8 @@
                 var lines_OePNV = "OePNV_Lines.geojson";
                 var stops_OePNV = "OePNV_Stops.geojson";
                 var arr = [];
-                var arr1 = [];
+                var arrAkb = [];
+                var arrVName = [];
                 // Erstellen Sie eine LayerGroup für den GeoJSON-Layer
                 var linesLayerGroup1 = L.layerGroup();
                 fetch(lines_OePNV)
@@ -147,7 +148,9 @@
                 };
                 function forEachFeature(feature, layer) {
                     // Der Name des jeweiligen Polygons im Datensatz wird für die Suche getagged
-                    layer._leaflet_id = feature.properties.Abk;
+
+                    layer._leaflet_id =
+                        feature.properties.Abk + "_" + feature.properties.vName;
                     var popupContent =
                         "<p><b>Abkürzung: </b>" +
                         feature.properties.Abk +
@@ -159,6 +162,25 @@
                         stateLayer1.setStyle(style); //setzt die Farbe des Layers
                         layer.setStyle(highlight); //setzt die Farbe wenn ausgewählt
                     });
+                    // try {
+                    //     layer._leaflet_id = feature.properties.vName;
+                    //     var popupContent =
+                    //         "<p><b>Abkürzung: </b>" +
+                    //         feature.properties.Abk +
+                    //         "<br>Vollständiger Name: " +
+                    //         feature.properties.vName +
+                    //         "</p>";
+                    //     layer.bindPopup(popupContent);
+                    //     layer.on("click", function (e) {
+                    //         stateLayer1.setStyle(style); //setzt die Farbe des Layers
+                    //         layer.setStyle(highlight); //setzt die Farbe wenn ausgewählt
+                    //     });
+                    // } catch (error2) {
+                    //     console.error(
+                    //         "Sucht nicht nach dem vollständigen Namen:",
+                    //         error2
+                    //     );
+                    // }
                 }
                 // Mit JQuery wird die GeoJSON-Datei in den Layer geladen, bevor dieser zur Karte hinzugefügt wird.
                 // Wenn das Array durchgelaufen ist, wird es zur addDataToAutocomplete Funktion übergeben.
@@ -169,13 +191,24 @@
                 $.getJSON(gebaeude_shapes, function (data) {
                     stateLayer1.addData(data);
                     for (i = 0; i < data.features.length; i++) {
-                        // Lädt die Gemeindenamen ins Array für die Suche.
-                        arr1.push({
+                        // Lädt die Abkürzungen ins Array für die Suche.
+                        arrAkb.push({
                             label: data.features[i].properties.Abk,
                             value: "",
                         });
+                        // Lädt die vollständigen Namen ins Array für die Suche.
+                        arrVName.push({
+                            label: data.features[i].properties.vName,
+                            value: "",
+                        });
                     }
-                    addDataToAutocomplete(arr1); // Gibt das Array für das Sortieren weiter und zum laden der Suchkontrolle.
+                    // addDataToAutocomplete(arrAkb); // Gibt das Array für das Sortieren weiter und zum laden der Suchkontrolle.
+                    // // addDataToAutocomplete(arrVName);
+                    // Kombiniere beide Arrays zu einem einzigen Array
+                    var combinedArray = arrAkb.concat(arrVName);
+
+                    // Gib das kombinierte Array an die Funktion für das Sortieren und das Laden der Suchkontrolle weiter.
+                    addDataToAutocomplete(combinedArray);
                 });
                 stateLayer1.addTo(map);
 
@@ -203,9 +236,9 @@
                 } // Autocomplete-Suche wird beendet.
 
                 // Click-Event und Zoom auf das Polygon. Leaflet benutzt eine interne ID um das Polygon auszuwählen.
-                function polySelect(a) {
-                    map._layers[a].fire("click"); // 'klickt' auf den Gemeindenamen aus der Suche.
-                    var layer = map._layers[a];
+                function polySelect(selectedLabel) {
+                    map._layers[selectedLabel].fire("click"); // 'klickt' auf den Suchbegriff.
+                    var layer = map._layers[selectedLabel];
                     map.fitBounds(layer.getBounds()); // Zoomt auf das ausgewählte Polygon.
                 }
                 // Layer-control.

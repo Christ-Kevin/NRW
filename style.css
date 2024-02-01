@@ -139,6 +139,11 @@ nicht mehr nebeneinander dargestellt werden sollen*/
     z-index: 100;
     margin-bottom: 5px;
 }
+/* Dimensionen des Elements für die Suchleiste wird festgelegt*/
+#autocomplete {
+    z-index: 100;
+    margin-bottom: 5px;
+}
 /* Dimensionen der Karte werden festgelegt*/
 #map {
     width: 95%;

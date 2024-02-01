@@ -27,9 +27,26 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
         />
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet/dist/leaflet.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"
+        />
     </head>
 
     <body>
+        <!-- Füge die Leaflet-Bibliothek hinzu -->
+        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+        <!-- Füge die Leaflet.markercluster-Bibliothek hinzu -->
+        <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
         <aside id="wappen">
             <img
                 src="medien/Logo_JadeHochschule_7.jpg"
@@ -49,10 +66,8 @@
             <h2>Startseite</h2>
             <h4>Interaktive Karte</h4>
             <section class="ui-widget" style="text-align: left">
-                <input
-                    id="autocomplete"
-                    placeholder="Suche nach dem Gebäude: "
-                />
+                <input id="autocomplete" placeholder="Gebäude: " />
+                <input id="stopsAutocomplete" placeholder="Haltestopp: " />
             </section>
             <section id="map"></section>
             <script>
@@ -63,6 +78,18 @@
                 var arr = [];
                 var arrAkb = [];
                 var arrVName = [];
+                var arrStopNames = [];
+
+                // Initialisierung der Karte
+                var map = L.map("map").setView([53.141092, 8.215208], 12);
+                var osm = new L.tileLayer(
+                    "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
+                    {
+                        attribution:
+                            '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                    }
+                );
+                osm.addTo(map);
 
                 // Erstellen Sie eine LayerGroup für den GeoJSON-Layer
                 var oepnv_layer = L.layerGroup();
@@ -94,28 +121,78 @@
                     return color;
                 }
 
-                var stops_layer = L.layerGroup();
+                // Erstelle einen Markercluster-Gruppen-Layer mit benutzerdefinierten Optionen
+                var stops_layer = L.markerClusterGroup({
+                    maxClusterRadius: 50, // Ändere dies entsprechend deinen Bedürfnissen
+                    disableClusteringAtZoom: 25, // Ändere dies entsprechend deinen Bedürfnissen
+                });
+                var selectedMarker = null; // Variable zum Speichern des zuletzt ausgewählten Markers
                 fetch(stops_OePNV)
                     .then((response) => response.json())
                     .then((data) => {
-                        // Erstelle ein Leaflet GeoJSON layer und füge es der Karte hinzu
+                        // Erstelle ein Leaflet GeoJSON layer und füge es der Cluster-Gruppe hinzu
                         L.geoJSON(data, {
                             pointToLayer: function (feature, latlng) {
-                                return L.circleMarker(latlng, {
-                                    radius: 3,
+                                var circleMarker = L.circleMarker(latlng, {
+                                    radius: 5,
                                     fillColor: "red",
-                                    color: "red",
+                                    color: "black",
                                     weight: 1,
                                     opacity: 1,
-                                    fillOpacity: 0.8,
+                                    fillOpacity: 1,
                                 });
+
+                                // Extrahiere den Haltestellennamen und füge ihn dem Array hinzu
+                                var stopName = feature.properties.stop_name;
+                                arrStopNames.push(stopName);
+
+                                // Popup-Inhalt erstellen
+                                var popupContent = `
+                                    <b>${feature.properties.stop_name}</b><br>
+                                    Stop ID: ${feature.properties.stop_id}`;
+
+                                // Popup zum Marker binden
+                                circleMarker.bindPopup(popupContent);
+
+                                circleMarker.on("click", function (e) {
+                                    // Zurücksetzen der vorherigen Auswahl
+                                    if (selectedMarker) {
+                                        selectedMarker.setStyle({
+                                            fillColor: "red",
+                                        });
+                                    }
+                                    // Setzen der neuen Auswahl
+                                    circleMarker.setStyle({
+                                        fillColor: "green",
+                                    });
+                                    // Speichern des ausgewählten Markers
+                                    selectedMarker = circleMarker;
+                                });
+                                return circleMarker;
                             },
                         }).addTo(stops_layer);
+
+                        // Initialisiere das Stops-Autocomplete-Widget mit dem neuen Array
+                        $("#stopsAutocomplete").autocomplete({
+                            source: function (request, response) {
+                                var stopResults = $.ui.autocomplete.filter(
+                                    arrStopNames,
+                                    request.term
+                                );
+                                response(stopResults.slice(0, 10));
+                            },
+                            select: function (event, ui) {
+                                stopSelect(ui.item.label);
+                                ui.item.value = "";
+                            },
+                        });
+                        // Füge die Cluster-Gruppe der Karte hinzu
                         stops_layer.addTo(map);
                     })
                     .catch((error) =>
                         console.error("Error fetching GeoJSON:", error)
                     );
+
                 // Initialisierung des JQuery autocomplete Widget mit einem leeren Element (Wird erst geladen wenn die JSON Datei eingelesen wurde)
                 $("#autocomplete").autocomplete({
                     source: function (request, response) {
@@ -129,19 +206,6 @@
                         polySelect(ui.item.label);
                     },
                 });
-
-                // Kommentare hier...
-
-                // Initialisierung der Karte und der zwei Basemaps
-                var map = L.map("map").setView([53.141092, 8.215208], 12);
-                var osm = new L.tileLayer(
-                    "http://{s}.tile.osm.org/{z}/{x}/{y}.png",
-                    {
-                        attribution:
-                            '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                    }
-                );
-                osm.addTo(map);
 
                 // Eine Style Funktion die die Farbe der Polygone der JSON Datei füllt
                 function style(feature) {
@@ -221,6 +285,61 @@
                             ui.item.value = "";
                         }
                     );
+                }
+
+                function stopSelect(searchTerm) {
+                    stops_layer.eachLayer(function (layer) {
+                        if (layer instanceof L.MarkerCluster) {
+                            layer
+                                .getAllChildMarkers()
+                                .forEach(function (marker) {
+                                    if (
+                                        marker.feature.properties.stop_name ===
+                                        searchTerm
+                                    ) {
+                                        stops_layer.zoomToShowLayer(
+                                            marker,
+                                            function () {
+                                                map.setView(
+                                                    marker.getLatLng(),
+                                                    16
+                                                );
+                                                // Ändere die Farbe des Punkts
+                                                marker.setStyle({
+                                                    fillColor: "green",
+                                                });
+
+                                                // Setze Timeout, um sicherzustellen, dass die Karte korrekt gerendert wurde
+                                                setTimeout(function () {
+                                                    // Manuell Popup öffnen
+                                                    marker.openPopup();
+                                                }, 300); // Sie können die Zeit anpassen, falls nötig
+                                            }
+                                        );
+                                    }
+                                });
+                        } else if (
+                            layer instanceof L.CircleMarker &&
+                            layer.feature.properties.stop_name === searchTerm
+                        ) {
+                            map.setView(layer.getLatLng(), 16);
+
+                            // Ändere die Farbe des Punkts
+                            layer.setStyle({
+                                fillColor: "green",
+                            });
+                            // Setze Timeout, um sicherzustellen, dass die Karte korrekt gerendert wurde
+                            setTimeout(function () {
+                                // Manuell Popup öffnen
+                                layer.openPopup();
+                            }, 300); // Sie können die Zeit anpassen, falls nötig
+                        } else {
+                            // Setze den Stil für alle anderen CircleMarker zurück
+                            layer.setStyle({
+                                fillColor: "red", // Setze die Farbe auf die ursprüngliche Farbe
+                            });
+                        }
+                    });
                 }
 
                 function polySelect(searchTerm) {

@@ -91,8 +91,18 @@
                 );
                 osm.addTo(map);
 
+                // Funktion, um eine zufällige Farbe zu generieren
+                function getRandomColor() {
+                    var letters = "0123456789ABCDEF";
+                    var color = "#";
+                    for (var i = 0; i < 6; i++) {
+                        color += letters[Math.floor(Math.random() * 16)];
+                    }
+                    return color;
+                }
+                
                 // Erstellen Sie eine LayerGroup für den GeoJSON-Layer
-                var oepnv_layer = L.layerGroup();
+                var lines_layer = L.layerGroup();
                 fetch(lines_OePNV)
                     .then((response) => response.json())
                     .then((data) => {
@@ -105,21 +115,11 @@
                                     opacity: 1,
                                 };
                             },
-                        }).addTo(oepnv_layer);
-                        oepnv_layer.addTo(map);
+                        }).addTo(lines_layer);
                     })
                     .catch((error) =>
                         console.error("Error fetching GeoJSON:", error)
                     );
-                // Funktion, um eine zufällige Farbe zu generieren
-                function getRandomColor() {
-                    var letters = "0123456789ABCDEF";
-                    var color = "#";
-                    for (var i = 0; i < 6; i++) {
-                        color += letters[Math.floor(Math.random() * 16)];
-                    }
-                    return color;
-                }
 
                 // Erstelle einen Markercluster-Gruppen-Layer mit benutzerdefinierten Optionen
                 var stops_layer = L.markerClusterGroup({
@@ -368,12 +368,12 @@
                 }
                 // Layer-control.
                 var baseMaps = {
-                    "Open Street Map": osm,
+                    "Basiskarte OSM": osm,
                 };
                 var overlayMaps = {
-                    Buildings: gebaeude_layer,
-                    Lines_OePNV: oepnv_layer,
-                    Stops_OePNV: stops_layer,
+                    Gebäude: gebaeude_layer,
+                    "ÖPNV-Linien": lines_layer,
+                    "ÖPNV-Stops": stops_layer,
                 };
                 // Hinzufügen des Layer-control's
                 L.control.layers(baseMaps, overlayMaps).addTo(map);

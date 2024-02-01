@@ -42,7 +42,7 @@
         </header>
         <nav id="navigation">
             <ul>
-                <li><a href="infos.html">Infos</a></li>
+                <li><a href="index2.html">Infos</a></li>
             </ul>
         </nav>
         <main id="inhalt">
@@ -65,7 +65,7 @@
                 var arrAkb = [];
                 var arrVName = [];
                 var arrStopName = [];
-                
+
                 // Initialisierung des JQuery autocomplete Widget mit einem leeren Element (Wird erst geladen wenn die JSON Datei eingelesen wurde)
                 $("#autocomplete").autocomplete();
                 // Initialisierung der Karte und der zwei Basemaps
@@ -169,8 +169,8 @@
                     .catch((error) =>
                         console.error("Error fetching GeoJSON:", error)
                     );
-                
-                    // Funktion, um eine zufällige Farbe zu generieren
+
+                // Funktion, um eine zufällige Farbe zu generieren
                 function getRandomColor() {
                     var letters = "0123456789ABCDEF";
                     var color = "#";
@@ -187,11 +187,11 @@
                         L.geoJSON(data, {
                             pointToLayer: function (feature, latlng) {
                                 // Füge jeden stop_name zum arrStopName Array hinzu
-                arrStopName.push({
-                    label: feature.properties.stop_name,
-                    value: "",
-                    attribute: "stop_name", // Setzen Sie hier den Attributnamen
-                });
+                                arrStopName.push({
+                                    label: feature.properties.stop_name,
+                                    value: "",
+                                    attribute: "stop_name", // Setzen Sie hier den Attributnamen
+                                });
                                 return L.circleMarker(latlng, {
                                     radius: 3,
                                     fillColor: "red",
@@ -201,6 +201,7 @@
                                     fillOpacity: 0.8,
                                 });
                             },
+                            
                         }).addTo(stopLayerGroup);
                         stopLayerGroup.addTo(map);
                     })
@@ -259,7 +260,8 @@
                         layer = buildingLayerGroup.getLayerByAbk(selectedLabel);
                     } else if (searchBy === "vName") {
                         // Suchen nach Vollständigem Namen
-                        layer = buildingLayerGroup.getLayerByVName(selectedLabel);
+                        layer =
+                            buildingLayerGroup.getLayerByVName(selectedLabel);
                     } else if (searchBy === "stop_name") {
                         // Suchen nach Vollständigem Namen
                         layer = stopLayerGroup.getLayerByVName(selectedLabel);
@@ -270,7 +272,6 @@
                         map.fitBounds(layer.getBounds()); // Zoomt auf das ausgewählte Polygon.
                         layer.setStyle(highlight); // Setzt die Farbe des Layers
                         layer.openPopup(); // Öffnet das Popup für den ausgewählten Layer.
-                        
                     } else {
                         console.log("Layer nicht gefunden");
                     }

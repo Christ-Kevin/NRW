@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="de">
     <head>
         <meta charset="utf-8" />
         <meta name="Timo Breilmann 6026144" content="Autor" />
@@ -17,7 +17,7 @@
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin=""
         ></script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <link
             rel="stylesheet"
             href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"
@@ -57,17 +57,81 @@
             <section id="map"></section>
             <script>
                 // Definieren der JSON-Dateien und zweier Hilfsarrays
-                // var urlNRW = "gemeinden_simplify200.geojson";
                 var gebaeude_shapes = "Buildings.geojson";
                 var lines_OePNV = "OePNV_Lines.geojson";
                 var stops_OePNV = "OePNV_Stops.geojson";
                 var arr = [];
                 var arrAkb = [];
                 var arrVName = [];
-                var arrStopName = [];
 
+                // Erstellen Sie eine LayerGroup für den GeoJSON-Layer
+                var oepnv_layer = L.layerGroup();
+                fetch(lines_OePNV)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        // Erstellen Sie ein Leaflet GeoJSON layer und fügen Sie es der LayerGroup hinzu
+                        L.geoJSON(data, {
+                            style: function () {
+                                return {
+                                    color: getRandomColor(),
+                                    weight: 2,
+                                    opacity: 1,
+                                };
+                            },
+                        }).addTo(oepnv_layer);
+                        oepnv_layer.addTo(map);
+                    })
+                    .catch((error) =>
+                        console.error("Error fetching GeoJSON:", error)
+                    );
+                // Funktion, um eine zufällige Farbe zu generieren
+                function getRandomColor() {
+                    var letters = "0123456789ABCDEF";
+                    var color = "#";
+                    for (var i = 0; i < 6; i++) {
+                        color += letters[Math.floor(Math.random() * 16)];
+                    }
+                    return color;
+                }
+
+                var stops_layer = L.layerGroup();
+                fetch(stops_OePNV)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        // Erstelle ein Leaflet GeoJSON layer und füge es der Karte hinzu
+                        L.geoJSON(data, {
+                            pointToLayer: function (feature, latlng) {
+                                return L.circleMarker(latlng, {
+                                    radius: 3,
+                                    fillColor: "red",
+                                    color: "red",
+                                    weight: 1,
+                                    opacity: 1,
+                                    fillOpacity: 0.8,
+                                });
+                            },
+                        }).addTo(stops_layer);
+                        stops_layer.addTo(map);
+                    })
+                    .catch((error) =>
+                        console.error("Error fetching GeoJSON:", error)
+                    );
                 // Initialisierung des JQuery autocomplete Widget mit einem leeren Element (Wird erst geladen wenn die JSON Datei eingelesen wurde)
-                $("#autocomplete").autocomplete();
+                $("#autocomplete").autocomplete({
+                    source: function (request, response) {
+                        var results = $.ui.autocomplete.filter(
+                            arr,
+                            request.term
+                        );
+                        response(results.slice(0, 10)); // Begrenzt auf die ersten 10 Ergebnisse
+                    },
+                    select: function (event, ui) {
+                        polySelect(ui.item.label);
+                    },
+                });
+
+                // Kommentare hier...
+
                 // Initialisierung der Karte und der zwei Basemaps
                 var map = L.map("map").setView([53.141092, 8.215208], 12);
                 var osm = new L.tileLayer(
@@ -98,14 +162,8 @@
                     opacity: 1,
                 };
                 function forEachFeature(feature, layer) {
-                    console.log(
-                        "forEachFeature ausgeführt für Layer mit ID:",
-                        layer._leaflet_id
-                    );
-
                     // Der Name des jeweiligen Polygons im Datensatz wird für die Suche getagged
-                    layer._leaflet_id =
-                        feature.properties.Abk + "_" + feature.properties.vName;
+                    layer._leaflet_id = feature.properties.Abk;
                     var popupContent =
                         "<p><b>Abkürzung: </b>" +
                         feature.properties.Abk +
@@ -114,31 +172,29 @@
                         "</p>";
                     layer.bindPopup(popupContent);
                     layer.on("click", function (e) {
-                        console.log("Layer geklickt:", layer);
-                        layer.setStyle(highlight);
-                        buildingLayerGroup.setStyle(style);
+                        gebaeude_layer.setStyle(style); //setzt die Farbe des Layers
+                        layer.setStyle(highlight); //setzt die Farbe wenn ausgewählt
                     });
                 }
                 // Mit JQuery wird die GeoJSON-Datei in den Layer geladen, bevor dieser zur Karte hinzugefügt wird.
                 // Wenn das Array durchgelaufen ist, wird es zur addDataToAutocomplete Funktion übergeben.
-                var buildingLayerGroup = L.geoJson(null, {
+                var gebaeude_layer = L.geoJson(null, {
                     onEachFeature: forEachFeature,
                     style: style,
                 });
+
                 $.getJSON(gebaeude_shapes, function (data) {
-                    buildingLayerGroup.addData(data);
+                    gebaeude_layer.addData(data);
                     for (i = 0; i < data.features.length; i++) {
                         // Lädt die Abkürzungen ins Array für die Suche.
                         arrAkb.push({
                             label: data.features[i].properties.Abk,
-                            value: "",
-                            attribute: "Abk", // Setzen Sie hier den Attributnamen
+                            value: "", //data.features[i].properties.vName
                         });
                         // Lädt die vollständigen Namen ins Array für die Suche.
                         arrVName.push({
                             label: data.features[i].properties.vName,
-                            value: "",
-                            attribute: "vName", // Setzen Sie hier den Attributnamen
+                            value: "", //data.features[i].properties.Abk
                         });
                     }
                     // Kombiniere beide Arrays zu einem einzigen Array
@@ -147,133 +203,48 @@
                     // Gib das kombinierte Array an die Funktion für das Sortieren und das Laden der Suchkontrolle weiter.
                     addDataToAutocomplete(combinedArray);
                 });
-                buildingLayerGroup.addTo(map);
-
-                // Erstellen Sie eine LayerGroup für den GeoJSON-Layer
-                var linesLayerGroup = L.layerGroup();
-                fetch(lines_OePNV)
-                    .then((response) => response.json())
-                    .then((data) => {
-                        // Erstellen Sie ein Leaflet GeoJSON layer und fügen Sie es der LayerGroup hinzu
-                        L.geoJSON(data, {
-                            style: function () {
-                                return {
-                                    color: getRandomColor(),
-                                    weight: 2,
-                                    opacity: 1,
-                                };
-                            },
-                        }).addTo(linesLayerGroup);
-                        linesLayerGroup.addTo(map);
-                    })
-                    .catch((error) =>
-                        console.error("Error fetching GeoJSON:", error)
-                    );
-
-                // Funktion, um eine zufällige Farbe zu generieren
-                function getRandomColor() {
-                    var letters = "0123456789ABCDEF";
-                    var color = "#";
-                    for (var i = 0; i < 6; i++) {
-                        color += letters[Math.floor(Math.random() * 16)];
-                    }
-                    return color;
-                }
-                var stopLayerGroup = L.layerGroup();
-                fetch(stops_OePNV)
-                    .then((response) => response.json())
-                    .then((data) => {
-                        // Erstelle ein Leaflet GeoJSON layer und füge es der Karte hinzu
-                        L.geoJSON(data, {
-                            pointToLayer: function (feature, latlng) {
-                                // Füge jeden stop_name zum arrStopName Array hinzu
-                                arrStopName.push({
-                                    label: feature.properties.stop_name,
-                                    value: "",
-                                    attribute: "stop_name", // Setzen Sie hier den Attributnamen
-                                });
-                                return L.circleMarker(latlng, {
-                                    radius: 3,
-                                    fillColor: "red",
-                                    color: "red",
-                                    weight: 1,
-                                    opacity: 1,
-                                    fillOpacity: 0.8,
-                                });
-                            },
-                            
-                        }).addTo(stopLayerGroup);
-                        stopLayerGroup.addTo(map);
-                    })
-                    .catch((error) =>
-                        console.error("Error fetching GeoJSON:", error)
-                    );
-
-                // Fügt zwei zusätzliche Methoden zu buildingLayerGroup hinzu, um Layer nach Abk und vName zu suchen
-                L.GeoJSON.include({
-                    getLayerByAbk: function (Abk) {
-                        return this.getLayers().find(
-                            (layer) => layer.feature.properties.Abk === Abk
-                        );
-                    },
-                    getLayerByVName: function (vName) {
-                        return this.getLayers().find(
-                            (layer) => layer.feature.properties.vName === vName
-                        );
-                    },
-                });
+                gebaeude_layer.addTo(map);
                 // Autocomplete-Suche
                 function addDataToAutocomplete(arr) {
                     arr.sort(function (a, b) {
-                        // Sortiert das Objekt nach Namen
-                        var nameA = a.label,
-                            nameB = b.label;
-                        if (nameA < nameB)
-                            // Sortiert den String aufsteigend.
-                            return -1;
-                        if (nameA > nameB) return 1;
-                        return 0; // Wird wieder auf Null gesetzt damit die Suchfunktion bei nächsten mal wieder von vorne anfängt.
+                        var nameA = a.label + " " + a.value,
+                            nameB = b.label + " " + b.value;
+                        return nameA.localeCompare(nameB);
                     });
-                    // Die Quelle für autocomplete.  https://api.jqueryui.com/autocomplete/#method-option
+
                     $("#autocomplete").autocomplete("option", "source", arr);
+
                     $("#autocomplete").on(
                         "autocompleteselect",
                         function (event, ui) {
-                            console.log("Autocomplete ausgewählt:", ui.item);
-                            polySelect(ui.item.label, ui.item.attribute);
+                            polySelect(ui.item.label);
                             ui.item.value = "";
                         }
                     );
-                } // Autocomplete-Suche wird beendet.
+                }
 
-                // // Click-Event und Zoom auf das Polygon. Leaflet benutzt eine interne ID um das Polygon auszuwählen.
-                function polySelect(selectedLabel, searchBy) {
-                    console.log(
-                        "polySelect ausgeführt mit:",
-                        selectedLabel,
-                        searchBy
-                    );
-
-                    var layer;
-                    if (searchBy === "Abk") {
-                        // Suchen nach Abkürzung
-                        layer = buildingLayerGroup.getLayerByAbk(selectedLabel);
-                    } else if (searchBy === "vName") {
-                        // Suchen nach Vollständigem Namen
-                        layer =
-                            buildingLayerGroup.getLayerByVName(selectedLabel);
-                    } else if (searchBy === "stop_name") {
-                        // Suchen nach Vollständigem Namen
-                        layer = stopLayerGroup.getLayerByVName(selectedLabel);
-                    }
-                    if (layer) {
-                        console.log("Layer gefunden:", layer);
-                        buildingLayerGroup.setStyle(style); // Stellt den ursprünglichen Stil für alle Polygone wieder her
-                        map.fitBounds(layer.getBounds()); // Zoomt auf das ausgewählte Polygon.
-                        layer.setStyle(highlight); // Setzt die Farbe des Layers
-                        layer.openPopup(); // Öffnet das Popup für den ausgewählten Layer.
-                    } else {
-                        console.log("Layer nicht gefunden");
+                function polySelect(searchTerm) {
+                    for (var layerId in map._layers) {
+                        if (map._layers.hasOwnProperty(layerId)) {
+                            var layer = map._layers[layerId];
+                            if (
+                                layer instanceof L.Path &&
+                                layer.feature.properties.Abk === searchTerm
+                            ) {
+                                map.fitBounds(layer.getBounds());
+                                layer.fire("click");
+                                return;
+                            }
+                            // Hier prüfen, ob der vollständige Name übereinstimmt
+                            if (
+                                layer instanceof L.Path &&
+                                layer.feature.properties.vName === searchTerm
+                            ) {
+                                map.fitBounds(layer.getBounds());
+                                layer.fire("click");
+                                return;
+                            }
+                        }
                     }
                 }
                 // Layer-control.
@@ -281,9 +252,9 @@
                     "Open Street Map": osm,
                 };
                 var overlayMaps = {
-                    Buildings: buildingLayerGroup,
-                    Lines_OePNV: linesLayerGroup,
-                    Stops_OePNV: stopLayerGroup,
+                    Buildings: gebaeude_layer,
+                    Lines_OePNV: oepnv_layer,
+                    Stops_OePNV: stops_layer,
                 };
                 // Hinzufügen des Layer-control's
                 L.control.layers(baseMaps, overlayMaps).addTo(map);

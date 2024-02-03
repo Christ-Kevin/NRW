@@ -1,28 +1,35 @@
 <!DOCTYPE html>
 <html lang="de">
     <head>
+        <!-- Metadaten, Charset und Autoreninformationen -->
         <meta charset="utf-8" />
         <meta name="Timo Breilmann 6026144" content="Autor" />
         <meta name="Christoph Evensen 6051080" content="Autor" />
+        <!-- Titel der Seite -->
         <title>Kartographische Informationsverarbeitung</title>
+        <!-- Verknüpfung mit externer CSS-Datei -->
         <link href="style.css" rel="stylesheet" type="text/css" />
+        <!-- Verknüpfung mit Leaflet CSS -->
         <link
             rel="stylesheet"
             href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
             integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
             crossorigin=""
         />
+        <!-- Verknüpfung mit Leaflet JavaScript-Bibliothek -->
         <script
             src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin=""
         ></script>
+        <!-- Verknüpfung mit jQuery und jQuery UI -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
         <link
             rel="stylesheet"
             href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"
         />
         <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <!-- Verknüpfungen mit Font Awesome und weiteren Leaflet Plugins -->
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
@@ -40,13 +47,13 @@
             href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"
         />
     </head>
-
     <body>
-        <!-- Füge die Leaflet-Bibliothek hinzu -->
+        <!-- Einbindung der Leaflet-Bibliothek -->
         <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-        <!-- Füge die Leaflet.markercluster-Bibliothek hinzu -->
+        <!-- Einbindung der Leaflet.markercluster-Bibliothek -->
         <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 
+        <!-- Logo der Jade Hochschule -->
         <aside id="wappen">
             <img
                 src="medien/Logo_JadeHochschule_7.jpg"
@@ -54,24 +61,32 @@
                 alt="Jade HS Wappen"
             />
         </aside>
+        <!-- Header mit Link zur Startseite -->
         <header id="kopf">
             <h1><a href="index.html">ÖPNV in Oldenburg</a></h1>
         </header>
+        <!-- Navigation mit einem Link zu "Bericht" -->
         <nav id="navigation">
             <ul>
-                <li><a href="index2.html">Infos</a></li>
+                <li><a href="bericht.html">Bericht</a></li>
             </ul>
         </nav>
+        <!-- Hauptteil -->
         <main id="inhalt">
             <h2>Startseite</h2>
             <h4>Interaktive Karte</h4>
+            <!-- Abschnitt für die Autocomplete-Textfelder -->
             <section class="ui-widget" style="text-align: left">
+                <!-- Textfeld für die Gebäude-Autocomplete-Suche -->
                 <input id="autocomplete" placeholder="Gebäude: " />
+                <!-- Textfeld für die Haltestopp-Autocomplete-Suche -->
                 <input id="stopsAutocomplete" placeholder="Haltestopp: " />
             </section>
+            <!-- Abschnitt für die Karte -->
             <section id="map"></section>
+            <!-- Skript für die Karte -->
             <script>
-                // Definieren der JSON-Dateien und zweier Hilfsarrays
+                // Definieren der GeoJSON-Dateien und der Hilfsarrays
                 var gebaeude_shapes = "Buildings.geojson";
                 var lines_OePNV = "OePNV_Lines.geojson";
                 var stops_OePNV = "OePNV_Stops.geojson";
@@ -90,7 +105,6 @@
                     }
                 );
                 osm.addTo(map);
-
                 // Funktion, um eine zufällige Farbe zu generieren
                 function getRandomColor() {
                     var letters = "0123456789ABCDEF";
@@ -100,13 +114,12 @@
                     }
                     return color;
                 }
-                
-                // Erstellen Sie eine LayerGroup für den GeoJSON-Layer
+                // Erstellen eine LayerGroup für den GeoJSON-Layer
                 var lines_layer = L.layerGroup();
                 fetch(lines_OePNV)
                     .then((response) => response.json())
                     .then((data) => {
-                        // Erstellen Sie ein Leaflet GeoJSON layer und fügen Sie es der LayerGroup hinzu
+                        // Erstellen ein Leaflet GeoJSON Layer und fügen es der LayerGroup hinzu
                         L.geoJSON(data, {
                             style: function () {
                                 return {
@@ -123,8 +136,8 @@
 
                 // Erstelle einen Markercluster-Gruppen-Layer mit benutzerdefinierten Optionen
                 var stops_layer = L.markerClusterGroup({
-                    maxClusterRadius: 50, // Ändere dies entsprechend deinen Bedürfnissen
-                    disableClusteringAtZoom: 25, // Ändere dies entsprechend deinen Bedürfnissen
+                    maxClusterRadius: 50, // Im welchem Radius die Haltestellen geclustert werden
+                    disableClusteringAtZoom: 25, // Ab welcher Zoomstufe das Clustern deaktiviert wird
                 });
                 var selectedMarker = null; // Variable zum Speichern des zuletzt ausgewählten Markers
                 fetch(stops_OePNV)
@@ -133,6 +146,7 @@
                         // Erstelle ein Leaflet GeoJSON layer und füge es der Cluster-Gruppe hinzu
                         L.geoJSON(data, {
                             pointToLayer: function (feature, latlng) {
+                                // Styling der Marker
                                 var circleMarker = L.circleMarker(latlng, {
                                     radius: 5,
                                     fillColor: "red",
@@ -142,18 +156,31 @@
                                     fillOpacity: 1,
                                 });
 
-                                // Extrahiere den Haltestellennamen und füge ihn dem Array hinzu
+                                // Extrahiere den Haltestellennamen und füge diese dem Array hinzu
                                 var stopName = feature.properties.stop_name;
                                 arrStopNames.push(stopName);
 
-                                // Popup-Inhalt erstellen
+                                // Extrahiere die Koordinaten
+                                var latitude = feature.properties.stop_lat;
+                                var longitude = feature.properties.stop_lon;
+
+                                // Erstelle den Google Maps Link
+                                var googleMapsLink =
+                                    "https://www.google.com/maps/dir/?api=1&destination=" +
+                                    latitude +
+                                    "," +
+                                    longitude +
+                                    "&travelmode=transit";
+
+                                // Popup-Inhalt erstellen (Name der Stops und Google Maps Link)
                                 var popupContent = `
                                     <b>${feature.properties.stop_name}</b><br>
-                                    Stop ID: ${feature.properties.stop_id}`;
+                                    <a href="${googleMapsLink}" target="_blank">Routing mit Google Maps (ÖPNV)</a>`;
 
                                 // Popup zum Marker binden
                                 circleMarker.bindPopup(popupContent);
 
+                                // Interaktion mit den Marker
                                 circleMarker.on("click", function (e) {
                                     // Zurücksetzen der vorherigen Auswahl
                                     if (selectedMarker) {
@@ -172,13 +199,14 @@
                             },
                         }).addTo(stops_layer);
 
-                        // Initialisiere das Stops-Autocomplete-Widget mit dem neuen Array
+                        // Initialisiere das Stops-Autocomplete-Widget
                         $("#stopsAutocomplete").autocomplete({
                             source: function (request, response) {
                                 var stopResults = $.ui.autocomplete.filter(
                                     arrStopNames,
                                     request.term
                                 );
+                                // Anzeigen von nur den ersten 10 Ergebnissen
                                 response(stopResults.slice(0, 10));
                             },
                             select: function (event, ui) {
@@ -192,8 +220,7 @@
                     .catch((error) =>
                         console.error("Error fetching GeoJSON:", error)
                     );
-
-                // Initialisierung des JQuery autocomplete Widget mit einem leeren Element (Wird erst geladen wenn die JSON Datei eingelesen wurde)
+                // Initialisierung des JQuery autocomplete Widget mit einem leeren Element (Wird erst geladen wenn die GeoJSON Datei eingelesen wurde)
                 $("#autocomplete").autocomplete({
                     source: function (request, response) {
                         var results = $.ui.autocomplete.filter(
@@ -206,10 +233,8 @@
                         polySelect(ui.item.label);
                     },
                 });
-
-                // Eine Style Funktion die die Farbe der Polygone der JSON Datei füllt
+                // Eine Style Funktion, die den Style der Polygone angibt
                 function style(feature) {
-                    // Grundfarbe der Polygone.
                     return {
                         fillColor: "green",
                         fillOpacity: 0.5,
@@ -219,8 +244,8 @@
                         dashArray: "3",
                     };
                 }
+                // Style des Polygons, wenn es ausgewählt wird
                 var highlight = {
-                    // Farbe des Polygons wenn es ausgewählt wird.
                     fillColor: "red",
                     weight: 2,
                     opacity: 1,
@@ -228,47 +253,85 @@
                 function forEachFeature(feature, layer) {
                     // Der Name des jeweiligen Polygons im Datensatz wird für die Suche getagged
                     layer._leaflet_id = feature.properties.Abk;
-                    var popupContent =
-                        "<p><b>Abkürzung: </b>" +
-                        feature.properties.Abk +
-                        "<br>Vollständiger Name: " +
-                        feature.properties.vName +
-                        "</p>";
+                    // Extrahiere die Koordinaten
+                    var latitude = feature.properties.building_lat;
+                    var longitude = feature.properties.building_lon;
+
+                    // Erstelle den Google Maps Link
+                    var googleMapsLink =
+                        "https://www.google.com/maps/dir/?api=1&destination=" +
+                        latitude +
+                        "," +
+                        longitude;
+
+                    // Popup-Inhalt erstellen (Name, Abkürzung und Google Maps Link)
+                    var popupContent = `
+                        <b>Name:</b> ${feature.properties.vName}<br>
+                        <b>Abkürzung:</b> ${feature.properties.Abk}<br>
+                        <a href="${googleMapsLink}" target="_blank">Route mit Google Maps anzeigen</a>`;
+                    // Popup zum Layer binden
                     layer.bindPopup(popupContent);
+
+                    // Interaktion mit dem Layer --> Gebäude anklicken
                     layer.on("click", function (e) {
                         gebaeude_layer.setStyle(style); //setzt die Farbe des Layers
                         layer.setStyle(highlight); //setzt die Farbe wenn ausgewählt
                     });
                 }
-                // Mit JQuery wird die GeoJSON-Datei in den Layer geladen, bevor dieser zur Karte hinzugefügt wird.
-                // Wenn das Array durchgelaufen ist, wird es zur addDataToAutocomplete Funktion übergeben.
+                // Erstellen einer LayerGroup für den GeoJSON-Layer der Gebäude
                 var gebaeude_layer = L.geoJson(null, {
                     onEachFeature: forEachFeature,
                     style: style,
                 });
+                // Erstellen eine LayerGroup für den GeoJSON-Layer
+                var lines_layer = L.layerGroup();
+                fetch(lines_OePNV)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        // Erstellen ein Leaflet GeoJSON Layer und fügen es der LayerGroup hinzu
+                        L.geoJSON(data, {
+                            style: function () {
+                                return {
+                                    color: getRandomColor(),
+                                    weight: 2,
+                                    opacity: 1,
+                                };
+                            },
+                        }).addTo(lines_layer);
+                    })
+                    .catch((error) =>
+                        console.error("Error fetching GeoJSON:", error)
+                    );
+                // GeoJSON-Datei für Gebäude laden und zur Karte hinzufügen
+                fetch(gebaeude_shapes)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        gebaeude_layer.addData(data);
 
-                $.getJSON(gebaeude_shapes, function (data) {
-                    gebaeude_layer.addData(data);
-                    for (i = 0; i < data.features.length; i++) {
-                        // Lädt die Abkürzungen ins Array für die Suche.
-                        arrAkb.push({
-                            label: data.features[i].properties.Abk,
-                            value: "", //data.features[i].properties.vName
-                        });
-                        // Lädt die vollständigen Namen ins Array für die Suche.
-                        arrVName.push({
-                            label: data.features[i].properties.vName,
-                            value: "", //data.features[i].properties.Abk
-                        });
-                    }
-                    // Kombiniere beide Arrays zu einem einzigen Array
-                    var combinedArray = arrAkb.concat(arrVName);
+                        // Arrays für die Suche vorbereiten
+                        var arrAkb = [];
+                        var arrVName = [];
 
-                    // Gib das kombinierte Array an die Funktion für das Sortieren und das Laden der Suchkontrolle weiter.
-                    addDataToAutocomplete(combinedArray);
-                });
-                gebaeude_layer.addTo(map);
-                // Autocomplete-Suche
+                        // Durchlaufen der GeoJSON-Features, um vollständige Namen und Abkürzungen zu den Arrays hinzuzufügen
+                        for (var i = 0; i < data.features.length; i++) {
+                            arrAkb.push({
+                                label: data.features[i].properties.Abk,
+                                value: "",
+                            });
+                            arrVName.push({
+                                label: data.features[i].properties.vName,
+                                value: "",
+                            });
+                        } // Kombinieren beider Arrays zu einem einzigen Array
+                        var combinedArray = arrAkb.concat(arrVName);
+
+                        // Übergabe an die Autocomplete-Funktion
+                        addDataToAutocomplete(combinedArray);
+                    })
+                    .catch((error) =>
+                        console.error("Error fetching GeoJSON:", error)
+                    );
+                // Funktion für die Autocomplete-Suche
                 function addDataToAutocomplete(arr) {
                     arr.sort(function (a, b) {
                         var nameA = a.label + " " + a.value,
@@ -286,7 +349,9 @@
                         }
                     );
                 }
-
+                // Restlicher Code für Gebäude-Layer und Karte bleibt unverändert
+                gebaeude_layer.addTo(map);
+                // Funktion für die Auswahl eines Haltestopps
                 function stopSelect(searchTerm) {
                     stops_layer.eachLayer(function (layer) {
                         if (layer instanceof L.MarkerCluster) {
@@ -297,23 +362,26 @@
                                         marker.feature.properties.stop_name ===
                                         searchTerm
                                     ) {
+                                        // Hier wird der targetStopName aktualisiert, wenn ein Haltestopp ausgewählt wird
+                                        targetStopName = searchTerm;
+
+                                        // Zoom zur ausgewählten Haltestelle
                                         stops_layer.zoomToShowLayer(
                                             marker,
                                             function () {
+                                                // Verändere die Sicht auf die Karte
                                                 map.setView(
                                                     marker.getLatLng(),
                                                     16
                                                 );
-                                                // Ändere die Farbe des Punkts
+                                                // Verändere den Style
                                                 marker.setStyle({
                                                     fillColor: "green",
                                                 });
-
-                                                // Setze Timeout, um sicherzustellen, dass die Karte korrekt gerendert wurde
+                                                // Warte für das Rendern der Karte und öffnet dann das Popup
                                                 setTimeout(function () {
-                                                    // Manuell Popup öffnen
                                                     marker.openPopup();
-                                                }, 300); // Sie können die Zeit anpassen, falls nötig
+                                                }, 300);
                                             }
                                         );
                                     }
@@ -322,54 +390,68 @@
                             layer instanceof L.CircleMarker &&
                             layer.feature.properties.stop_name === searchTerm
                         ) {
+                            // Hier wird der targetStopName aktualisiert, wenn ein Haltestopp ausgewählt wird
+                            targetStopName = searchTerm;
+                            // Verändere die Sicht auf die Karte
                             map.setView(layer.getLatLng(), 16);
-
-                            // Ändere die Farbe des Punkts
+                            // Verändere den Style
                             layer.setStyle({
                                 fillColor: "green",
                             });
-                            // Setze Timeout, um sicherzustellen, dass die Karte korrekt gerendert wurde
+                            // Warte für das Rendern der Karte und öffnet dann das Popup
                             setTimeout(function () {
-                                // Manuell Popup öffnen
                                 layer.openPopup();
-                            }, 300); // Sie können die Zeit anpassen, falls nötig
+                            }, 300);
                         } else {
-                            // Setze den Stil für alle anderen CircleMarker zurück
+                            // Setze den Style zurück (bzw. wieder auf rot)
                             layer.setStyle({
-                                fillColor: "red", // Setze die Farbe auf die ursprüngliche Farbe
+                                fillColor: "red",
                             });
                         }
                     });
                 }
-
+                // Die Funktion polySelect durchsucht alle Layer auf der Leaflet-Karte und wählt das entsprechende Polygon oder die Linie aus.
                 function polySelect(searchTerm) {
+                    // Durchlaufe alle Layer in der Leaflet-Karte
                     for (var layerId in map._layers) {
+                        // Überprüfe, ob der LayerId-Eintrag vom Objekt stammt und nicht vom Prototypen erbt
                         if (map._layers.hasOwnProperty(layerId)) {
+                            // Zugriff auf den aktuellen Layer
                             var layer = map._layers[layerId];
+
+                            // Überprüfe, ob der Layer ein Pfad (z.B. Polygon oder Linie) ist und die Abkürzung übereinstimmt
                             if (
                                 layer instanceof L.Path &&
                                 layer.feature.properties.Abk === searchTerm
                             ) {
+                                // Passe die Kartenansicht an, um den Layer vollständig sichtbar zu machen
                                 map.fitBounds(layer.getBounds());
+                                // Löse das "click"-Ereignis auf dem Layer aus
                                 layer.fire("click");
+                                // Beende die Funktion, da ein passender Layer gefunden wurde
                                 return;
                             }
+
                             // Hier prüfen, ob der vollständige Name übereinstimmt
                             if (
                                 layer instanceof L.Path &&
                                 layer.feature.properties.vName === searchTerm
                             ) {
+                                // Passe die Kartenansicht an, um den Layer vollständig sichtbar zu machen
                                 map.fitBounds(layer.getBounds());
+                                // Löse das "click"-Ereignis auf dem Layer aus
                                 layer.fire("click");
+                                // Beende die Funktion, da ein passender Layer gefunden wurde
                                 return;
                             }
                         }
                     }
                 }
-                // Layer-control.
+                // Layer-control für die Basemap(s)
                 var baseMaps = {
                     "Basiskarte OSM": osm,
                 };
+                // Layer-control für die unterschiedlichen Layer
                 var overlayMaps = {
                     Gebäude: gebaeude_layer,
                     "ÖPNV-Linien": lines_layer,
@@ -379,14 +461,8 @@
                 L.control.layers(baseMaps, overlayMaps).addTo(map);
             </script>
             <a id="download" href="Buildings.geojson" download
-                >Download GeoJson-Datei für die Gebäude</a
+                >Download GeoJSON-Datei für die Gebäude</a
             >
         </main>
-        <footer id="fusszeile">
-            <ul>
-                <li><a href="kontakt.html">Kontakt</a></li>
-                <li><a href="impressum.html">Impressum</a></li>
-            </ul>
-        </footer>
     </body>
 </html>

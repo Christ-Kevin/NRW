@@ -152,7 +152,7 @@ nicht mehr nebeneinander dargestellt werden sollen*/
     z-index: 0;
 }
 /* Größe des Wappens wird festgelegt*/
-#wappen {
+#logo {
     height: 75px;
     float: right;
 }
@@ -160,18 +160,21 @@ nicht mehr nebeneinander dargestellt werden sollen*/
 #kopf {
     background-color: red;
     height: 75px;
-    text-align: center;
+    display: flex;
+    justify-content: center; /* Horizontal zentrieren */
+    align-items: center; /* Vertikal zentrieren */
 }
 /* Festlegen der Schriftdarstellung*/
 #kopf a {
     color: white;
     text-decoration: none;
+    text-align: center;
     margin-left: 25px;
-    margin-top: 25px;
 }
+
 /* Farbe und Höhe der Navigationsleiste wird festgelegt*/
 #navigation {
-    background-color: white;
+    background-color: black;
     height: auto;
 }
 /* Art der Liste der Navigationspunkte wird festgelegt*/
@@ -184,27 +187,9 @@ nicht mehr nebeneinander dargestellt werden sollen*/
     width: auto;
     text-decoration: none;
     text-align: center;
-    color: black;
-}
-/* Größe des Bildes wird festgelegt*/
-#deutschland {
-    width: 450;
-    height: auto;
+    color: white;
 }
 /* Abstand zwischen dem linken Fensterrand und Inhalt wird auf 10 px gesetzt*/
 #inhalt {
     margin-left: 10px;
-}
-/* Hintergrundfarbe der Fußleiste wird dargestellt*/
-#fusszeile {
-    background-color: black;
-}
-/* Abstand zwischen den Listenpunkten wird auf 5px gesetzt*/
-#fusszeile li {
-    margin: 5px;
-    display: inline-block;
-}
-/* Schriftfarbe wird auf weiß gesetzt*/
-#fusszeile a {
-    color: white;
 }

@@ -9,21 +9,8 @@
         <title>Kartographische Informationsverarbeitung</title>
         <!-- Verknüpfung mit externer CSS-Datei -->
         <link href="style.css" rel="stylesheet" type="text/css" />
-        <!-- Verknüpfung mit Leaflet CSS -->
-        <link
-            rel="stylesheet"
-            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-            crossorigin=""
-        />
-        <!-- Verknüpfung mit Leaflet JavaScript-Bibliothek -->
-        <script
-            src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-            crossorigin=""
-        ></script>
         <!-- Verknüpfung mit jQuery und jQuery UI -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
         <link
             rel="stylesheet"
             href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"
@@ -34,10 +21,23 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
         />
+        <!-- Verknüpfung von diversen Leaflet Bilbiotheken und css-Dateien -->
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+            crossorigin=""
+        />
+        <script
+            src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""
+        ></script>
         <link
             rel="stylesheet"
             href="https://unpkg.com/leaflet/dist/leaflet.css"
         />
+        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
         <link
             rel="stylesheet"
             href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"
@@ -46,15 +46,11 @@
             rel="stylesheet"
             href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"
         />
+        <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
     </head>
     <body>
-        <!-- Einbindung der Leaflet-Bibliothek -->
-        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-        <!-- Einbindung der Leaflet.markercluster-Bibliothek -->
-        <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-
         <!-- Logo der Jade Hochschule -->
-        <aside id="wappen">
+        <aside id="logo">
             <img
                 src="medien/Logo_JadeHochschule_7.jpg"
                 style="height: 100%"
@@ -76,7 +72,7 @@
             <h2>Startseite</h2>
             <h4>Interaktive Karte</h4>
             <!-- Abschnitt für die Autocomplete-Textfelder -->
-            <section class="ui-widget" style="text-align: left">
+            <section class="ui-widget">
                 <!-- Textfeld für die Gebäude-Autocomplete-Suche -->
                 <input id="autocomplete" placeholder="Gebäude: " />
                 <!-- Textfeld für die Haltestopp-Autocomplete-Suche -->
@@ -90,11 +86,11 @@
                 var gebaeude_shapes = "Buildings.geojson";
                 var lines_OePNV = "OePNV_Lines.geojson";
                 var stops_OePNV = "OePNV_Stops.geojson";
+                var ol_shapes = "Statistikbezirke.geojson";
                 var arr = [];
                 var arrAkb = [];
                 var arrVName = [];
                 var arrStopNames = [];
-
                 // Initialisierung der Karte
                 var map = L.map("map").setView([53.141092, 8.215208], 12);
                 var osm = new L.tileLayer(
@@ -114,7 +110,7 @@
                     }
                     return color;
                 }
-                // Erstellen eine LayerGroup für den GeoJSON-Layer
+                // Erstellen eine LayerGroup für den GeoJSON-Layer für die ÖPNV-Linien
                 var lines_layer = L.layerGroup();
                 fetch(lines_OePNV)
                     .then((response) => response.json())
@@ -131,10 +127,29 @@
                         }).addTo(lines_layer);
                     })
                     .catch((error) =>
-                        console.error("Error fetching GeoJSON:", error)
+                        console.error("Fehler beim Abrufen von GeoJSON:", error)
                     );
-
-                // Erstelle einen Markercluster-Gruppen-Layer mit benutzerdefinierten Optionen
+                // Erstellen eine LayerGroup für den GeoJSON-Layer für die Statistikbezirke Oldenburgs
+                var ol_layer = L.layerGroup();
+                fetch(ol_shapes)
+                    .then((response) => response.json())
+                    .then((data) => {
+                        // Erstelle ein Leaflet GeoJSON Layer und füge es zur Karte hinzu
+                        L.geoJSON(data, {
+                            style: function () {
+                                return {
+                                    fillColor: "grey", // Leicht gräuliche Füllfarbe
+                                    color: "black", // Schwarzer Rand
+                                    weight: 1,
+                                    opacity: 1,
+                                };
+                            },
+                        }).addTo(ol_layer);
+                    })
+                    .catch((error) =>
+                        console.error("Fehler beim Abrufen von GeoJSON:", error)
+                    );
+                // Erstelle einen Markercluster-Gruppen-Layer für die Haltestellen
                 var stops_layer = L.markerClusterGroup({
                     maxClusterRadius: 50, // Im welchem Radius die Haltestellen geclustert werden
                     disableClusteringAtZoom: 25, // Ab welcher Zoomstufe das Clustern deaktiviert wird
@@ -155,15 +170,12 @@
                                     opacity: 1,
                                     fillOpacity: 1,
                                 });
-
                                 // Extrahiere den Haltestellennamen und füge diese dem Array hinzu
                                 var stopName = feature.properties.stop_name;
                                 arrStopNames.push(stopName);
-
                                 // Extrahiere die Koordinaten
                                 var latitude = feature.properties.stop_lat;
                                 var longitude = feature.properties.stop_lon;
-
                                 // Erstelle den Google Maps Link
                                 var googleMapsLink =
                                     "https://www.google.com/maps/dir/?api=1&destination=" +
@@ -171,15 +183,12 @@
                                     "," +
                                     longitude +
                                     "&travelmode=transit";
-
                                 // Popup-Inhalt erstellen (Name der Stops und Google Maps Link)
                                 var popupContent = `
                                     <b>${feature.properties.stop_name}</b><br>
                                     <a href="${googleMapsLink}" target="_blank">Routing mit Google Maps (ÖPNV)</a>`;
-
                                 // Popup zum Marker binden
                                 circleMarker.bindPopup(popupContent);
-
                                 // Interaktion mit den Marker
                                 circleMarker.on("click", function (e) {
                                     // Zurücksetzen der vorherigen Auswahl
@@ -198,7 +207,6 @@
                                 return circleMarker;
                             },
                         }).addTo(stops_layer);
-
                         // Initialisiere das Stops-Autocomplete-Widget
                         $("#stopsAutocomplete").autocomplete({
                             source: function (request, response) {
@@ -218,7 +226,7 @@
                         stops_layer.addTo(map);
                     })
                     .catch((error) =>
-                        console.error("Error fetching GeoJSON:", error)
+                        console.error("Fehler beim Abrufen von GeoJSON:", error)
                     );
                 // Initialisierung des JQuery autocomplete Widget mit einem leeren Element (Wird erst geladen wenn die GeoJSON Datei eingelesen wurde)
                 $("#autocomplete").autocomplete({
@@ -256,14 +264,12 @@
                     // Extrahiere die Koordinaten
                     var latitude = feature.properties.building_lat;
                     var longitude = feature.properties.building_lon;
-
                     // Erstelle den Google Maps Link
                     var googleMapsLink =
                         "https://www.google.com/maps/dir/?api=1&destination=" +
                         latitude +
                         "," +
                         longitude;
-
                     // Popup-Inhalt erstellen (Name, Abkürzung und Google Maps Link)
                     var popupContent = `
                         <b>Name:</b> ${feature.properties.vName}<br>
@@ -283,35 +289,14 @@
                     onEachFeature: forEachFeature,
                     style: style,
                 });
-                // Erstellen eine LayerGroup für den GeoJSON-Layer
-                var lines_layer = L.layerGroup();
-                fetch(lines_OePNV)
-                    .then((response) => response.json())
-                    .then((data) => {
-                        // Erstellen ein Leaflet GeoJSON Layer und fügen es der LayerGroup hinzu
-                        L.geoJSON(data, {
-                            style: function () {
-                                return {
-                                    color: getRandomColor(),
-                                    weight: 2,
-                                    opacity: 1,
-                                };
-                            },
-                        }).addTo(lines_layer);
-                    })
-                    .catch((error) =>
-                        console.error("Error fetching GeoJSON:", error)
-                    );
                 // GeoJSON-Datei für Gebäude laden und zur Karte hinzufügen
                 fetch(gebaeude_shapes)
                     .then((response) => response.json())
                     .then((data) => {
                         gebaeude_layer.addData(data);
-
                         // Arrays für die Suche vorbereiten
                         var arrAkb = [];
                         var arrVName = [];
-
                         // Durchlaufen der GeoJSON-Features, um vollständige Namen und Abkürzungen zu den Arrays hinzuzufügen
                         for (var i = 0; i < data.features.length; i++) {
                             arrAkb.push({
@@ -329,7 +314,7 @@
                         addDataToAutocomplete(combinedArray);
                     })
                     .catch((error) =>
-                        console.error("Error fetching GeoJSON:", error)
+                        console.error("Fehler beim Abrufen von GeoJSON:", error)
                     );
                 // Funktion für die Autocomplete-Suche
                 function addDataToAutocomplete(arr) {
@@ -338,9 +323,7 @@
                             nameB = b.label + " " + b.value;
                         return nameA.localeCompare(nameB);
                     });
-
                     $("#autocomplete").autocomplete("option", "source", arr);
-
                     $("#autocomplete").on(
                         "autocompleteselect",
                         function (event, ui) {
@@ -364,7 +347,6 @@
                                     ) {
                                         // Hier wird der targetStopName aktualisiert, wenn ein Haltestopp ausgewählt wird
                                         targetStopName = searchTerm;
-
                                         // Zoom zur ausgewählten Haltestelle
                                         stops_layer.zoomToShowLayer(
                                             marker,
@@ -418,7 +400,6 @@
                         if (map._layers.hasOwnProperty(layerId)) {
                             // Zugriff auf den aktuellen Layer
                             var layer = map._layers[layerId];
-
                             // Überprüfe, ob der Layer ein Pfad (z.B. Polygon oder Linie) ist und die Abkürzung übereinstimmt
                             if (
                                 layer instanceof L.Path &&
@@ -431,7 +412,6 @@
                                 // Beende die Funktion, da ein passender Layer gefunden wurde
                                 return;
                             }
-
                             // Hier prüfen, ob der vollständige Name übereinstimmt
                             if (
                                 layer instanceof L.Path &&
@@ -456,6 +436,7 @@
                     Gebäude: gebaeude_layer,
                     "ÖPNV-Linien": lines_layer,
                     "ÖPNV-Stops": stops_layer,
+                    "Statistikbezirke OL": ol_layer,
                 };
                 // Hinzufügen des Layer-control's
                 L.control.layers(baseMaps, overlayMaps).addTo(map);
